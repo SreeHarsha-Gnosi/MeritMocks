@@ -1,0 +1,71 @@
+{% extends "exams/exam_base.html" %}
+{% load static %}
+{% block title %}Instructions · {{ mock.title }}{% endblock %}
+{% block body_class %}xm-body--ins{% endblock %}
+{% block content %}
+<main class="ins" data-step="{{ step }}">
+  <section class="ins__panel">
+    <div class="ins__scroll">
+      <div class="ins__page" data-page="1">
+        {% include "exams/partials/general_instructions.html" %}
+      </div>
+
+      <div class="ins__page" data-page="2">
+        <h2 class="ins__h">Other Important Instructions</h2>
+        <table class="ins__table">
+          <thead><tr><th>S. No.</th><th>Section</th><th>No. of Questions</th><th>Maximum Marks</th><th>Duration</th></tr></thead>
+          <tbody>
+            {% for s in sections %}
+            <tr><td>{{ forloop.counter }}</td><td>{{ s.name }}</td><td>{{ s.questions.count }}</td><td>{{ s.questions.count }}</td><td>{{ s.duration_minutes }} minutes</td></tr>
+            {% endfor %}
+          </tbody>
+          <tfoot><tr><td></td><td>Total</td><td>{{ mock.total_questions }}</td><td>{{ mock.max_marks|floatformat:0 }}</td><td>{{ mock.total_minutes }} minutes</td></tr></tfoot>
+        </table>
+        <ol class="ins__list">
+          <li>Each correct answer carries <b>{{ mock.positive_marks|floatformat:"-2" }} mark</b>. For each wrong answer, <b>{{ mock.negative_marks|floatformat:"-2" }}</b> of the marks assigned to that question will be deducted. Unanswered questions carry no penalty.</li>
+          <li>The test opens in <b>full-screen mode</b>. Leaving full screen, switching tabs or windows, or minimising the browser is recorded as a violation.{% if mock.max_warnings %} After <b>{{ mock.max_warnings }} violations</b> your test will be submitted automatically.{% endif %}</li>
+          <li>Copying, printing and right-clicking are disabled during the test. Every screen carries a watermark that identifies your attempt.</li>
+          <li>The test can be open in only one window at a time. Opening it in another tab or device closes it here.</li>
+          <li>Refreshing the page or losing your connection does not stop the timer. Your saved answers are kept and you can continue from where you left off.</li>
+        </ol>
+
+        <form method="post" class="ins__form" id="start-form">
+          {% csrf_token %}
+          {% if error %}<p class="ins__error" role="alert">{{ error }}</p>{% endif %}
+          {% if in_progress %}
+          <p class="ins__resume">You have a test in progress started as <b>{{ in_progress.candidate_name }}</b>. Continuing will resume it — the timer has kept running.</p>
+          <input type="hidden" name="candidate_name" value="{{ in_progress.candidate_name }}">
+          {% else %}
+          <label class="ins__field">
+            <span>Candidate name (shown on your exam screen and scorecard)</span>
+            <input type="text" name="candidate_name" maxlength="60" autocomplete="name" required value="{{ request.POST.candidate_name }}" placeholder="e.g. Priya Sharma">
+          </label>
+          {% endif %}
+          <label class="ins__check">
+            <input type="checkbox" name="declaration" value="1" required>
+            <span>I have read and understood the instructions. I agree that all computer hardware allotted to me is in proper working condition, and that I will not use any unfair means during this test. I understand that any violation of these rules will be recorded and may result in my test being submitted automatically.</span>
+          </label>
+        </form>
+      </div>
+    </div>
+
+    <footer class="ins__bar">
+      <a class="xbtn xbtn--plain" href="{% url 'exam_detail' mock.exam.slug %}" data-show-on="1">Cancel</a>
+      <button type="button" class="xbtn xbtn--plain" data-goto="1" data-show-on="2">&lsaquo; Previous</button>
+      <button type="button" class="xbtn xbtn--primary" data-goto="2" data-show-on="1">Next &rsaquo;</button>
+      <button type="submit" form="start-form" class="xbtn xbtn--primary" data-show-on="2" id="begin">{% if in_progress %}Resume test{% else %}I am ready to begin{% endif %}</button>
+    </footer>
+  </section>
+
+  <aside class="ins__side">
+    <div class="avatar avatar--lg" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+    <p class="ins__cand">{% if in_progress %}{{ in_progress.candidate_name }}{% else %}Candidate{% endif %}</p>
+    <dl class="ins__facts">
+      <div><dt>Questions</dt><dd>{{ mock.total_questions }}</dd></div>
+      <div><dt>Duration</dt><dd>{{ mock.total_minutes }} min</dd></div>
+      <div><dt>Marking</dt><dd>+{{ mock.positive_marks|floatformat:"-2" }} / −{{ mock.negative_marks|floatformat:"-2" }}</dd></div>
+    </dl>
+  </aside>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{% static 'exams/js/instructions.js' %}" defer></script>{% endblock %}

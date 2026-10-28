@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% load static exam_tags %}
+{% block title %}Solutions · {{ mock.title }} — MeritMocks{% endblock %}
+{% block head %}<meta name="robots" content="noindex"><link rel="stylesheet" href="{% static 'exams/css/review.css' %}">{% endblock %}
+{% block body_class %}page-review page-solutions{% endblock %}
+{% block content %}
+<section class="rv-head rv-head--slim">
+  <div class="wrap">
+    <p class="crumbs crumbs--inverse"><a href="{% url 'home' %}">Home</a> / <a href="{% url 'result' attempt.pk %}">Scorecard</a> / Solutions</p>
+    <h1>Solutions · {{ mock.title }}</h1>
+  </div>
+</section>
+
+<div class="sol-bar">
+  <div class="wrap sol-bar__inner">
+    <nav class="sol-tabs" aria-label="Sections">
+      {% for s in sections %}<a href="#sec-{{ forloop.counter }}">{{ s.name }}</a>{% endfor %}
+    </nav>
+    <div class="sol-filter" role="group" aria-label="Filter questions">
+      <button type="button" class="is-on" data-filter="all">All</button>
+      <button type="button" data-filter="correct">Correct</button>
+      <button type="button" data-filter="wrong">Wrong</button>
+      <button type="button" data-filter="skipped">Skipped</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap sol" id="sol" data-label="{{ attempt.candidate_name }} · {{ attempt.short_id }}">
+  {% for s in sections %}
+  <section class="sol-sec" id="sec-{{ forloop.counter }}">
+    <h2>{{ s.name }}</h2>
+    {% for r in s.responses %}
+    {% with q=r.question %}
+    {% if r.counts_as_answer %}{% if r.selected.is_correct %}{% firstof "correct" as outcome %}{% else %}{% firstof "wrong" as outcome %}{% endif %}{% else %}{% firstof "skipped" as outcome %}{% endif %}
+    <article class="sol-q sol-q--{{ outcome }}" data-outcome="{{ outcome }}">
+      <header class="sol-q__head">
+        <span class="sol-q__n">Q{{ r.number }}</span>
+        <span class="sol-q__topic">{{ q.topic }}</span>
+        <span class="sol-chip sol-chip--{{ outcome }}">
+          {% if outcome == "correct" %}Correct · +{{ mock.positive_marks|marks }}{% elif outcome == "wrong" %}Wrong · −{{ mock.negative_marks|marks }}{% else %}Not answered{% endif %}
+        </span>
+        <span class="sol-q__time" title="Time spent">{{ r.seconds_spent|duration }}</span>
+      </header>
+      {% if q.passage %}
+      <details class="sol-passage">
+        <summary>{% if q.passage.body %}Show passage / directions{% else %}Show directions{% endif %}</summary>
+        <div class="sol-passage__dir">{{ q.passage.directions|safe }}</div>
+        {% if q.passage.body %}<div class="sol-passage__body">{{ q.passage.body|safe }}</div>{% endif %}
+      </details>
+      {% endif %}
+      <div class="sol-q__text">{{ q.text|safe }}</div>
+      <ol class="sol-opts">
+        {% for o in q.options.all %}
+        <li class="{% if o.is_correct %}is-correct{% elif o.pk == r.selected_id %}is-wrong{% endif %}">
+          <span class="sol-opts__l">{{ o.order|letter }}</span>
+          <span class="sol-opts__t">{{ o.text }}</span>
+          {% if o.is_correct %}<span class="sol-opts__tag">Correct answer</span>{% elif o.pk == r.selected_id %}<span class="sol-opts__tag">Your answer</span>{% endif %}
+          {% if o.is_correct and o.pk == r.selected_id %}<span class="sol-opts__tag sol-opts__tag--you">Your answer</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+      {% if q.explanation %}
+      <div class="sol-exp"><b>Explanation</b><div>{{ q.explanation|safe }}</div></div>
+      {% endif %}
+    </article>
+    {% endwith %}
+    {% endfor %}
+  </section>
+  {% endfor %}
+</div>
+<div class="xm-watermark sol-watermark" id="watermark" aria-hidden="true"></div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'exams/js/review.js' %}" defer></script>{% endblock %}

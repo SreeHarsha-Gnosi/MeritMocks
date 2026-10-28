@@ -1,0 +1,53 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MeritMocks — Mock tests for every banking exam{% endblock %}</title>
+  <meta name="description" content="{% block description %}Practise IBPS, SBI, RBI, insurance and government exam mocks in the exact TCS iON exam-day interface.{% endblock %}">
+  <meta name="theme-color" content="#16305C">
+  <link rel="icon" href="{% static 'core/img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="{% static 'core/css/site.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% block header %}
+  <header class="nav">
+    <div class="wrap nav__inner">
+      {% include "core/partials/logo.html" %}
+      <nav class="nav__links" aria-label="Main">
+        <a href="{% url 'home' %}#exams">Exams</a>
+        <a href="{% url 'home' %}#interface">Exam interface</a>
+        <a href="{% url 'home' %}#pricing">Pricing</a>
+      </nav>
+      <div class="nav__actions">
+        <span class="btn btn--ghost btn--sm is-disabled" title="Accounts are coming soon">Log in</span>
+        <a class="btn btn--primary btn--sm" href="{% url 'exam_detail' 'ibps-po' %}">Take free mock</a>
+      </div>
+    </div>
+  </header>
+  {% endblock %}
+
+  {% if messages %}
+  <div class="wrap flash">{% for m in messages %}<p class="flash__item">{{ m }}</p>{% endfor %}</div>
+  {% endif %}
+
+  <main>{% block content %}{% endblock %}</main>
+
+  {% block footer %}
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div>
+        {% include "core/partials/logo.html" with inverse=True %}
+        <p class="footer__tag">Mock tests for every banking exam.</p>
+      </div>
+      <p class="footer__fine">© {% now "Y" %} MeritMocks. Questions are original and written for practice. MeritMocks is not affiliated with IBPS, SBI, RBI or TCS.</p>
+    </div>
+  </footer>
+  {% endblock %}
+  {% block scripts %}{% endblock %}
+</body>
+</html>

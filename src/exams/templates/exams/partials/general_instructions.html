@@ -1,0 +1,27 @@
+<h2 class="ins__h">General Instructions</h2>
+<ol class="ins__list">
+  <li>The total duration of the examination is <b>{{ mock.total_minutes }} minutes</b>, divided into {{ sections|length }} sections with separate timers.</li>
+  <li>The clock is set on the server. The countdown timer at the top right of the screen shows the time remaining in the current section. When the timer reaches zero, the section ends by itself — you do not need to submit it.</li>
+  <li>The Question Palette on the right side of the screen shows the status of each question using one of the following symbols:
+    {% include "exams/partials/legend.html" %}
+  </li>
+  <li>The <b>Marked for Review</b> status simply indicates that you would like to look at that question again. <b>If a question is answered and Marked for Review, your answer will be considered for evaluation.</b></li>
+</ol>
+<h3 class="ins__h3">Navigating to a question</h3>
+<ol class="ins__list" start="5">
+  <li>Click on a question number in the Question Palette to go to that question directly. <b>Note:</b> doing so does <u>not</u> save your answer to the current question.</li>
+  <li>Click <b>Save &amp; Next</b> to save your answer for the current question and go to the next question.</li>
+  <li>Click <b>Mark for Review &amp; Next</b> to save your answer, mark the question for review, and go to the next question.</li>
+</ol>
+<h3 class="ins__h3">Answering a question</h3>
+<ol class="ins__list" start="8">
+  <li>To select an answer, click on the button of one of the options. To deselect your chosen answer, click <b>Clear Response</b>.</li>
+  <li>To change your answer, click on the button of another option and then click <b>Save &amp; Next</b>.</li>
+  <li>Questions that are saved or marked for review after answering will be considered for evaluation.</li>
+</ol>
+<h3 class="ins__h3">Navigating through sections</h3>
+<ol class="ins__list" start="11">
+  <li>Sections are shown on the top bar of the screen. You can answer questions only in the section that is currently open.</li>
+  <li>Each section has its own time limit. You cannot move to the next section before the time of the current section is over, and you cannot return to a section once its time is over.</li>
+  <li>The <b>Submit</b> button is available only in the last section.</li>
+</ol>

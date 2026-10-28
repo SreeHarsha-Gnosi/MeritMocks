@@ -1,0 +1,48 @@
+{% extends "core/base.html" %}
+{% block title %}{{ exam.short_name }} Mock Tests — MeritMocks{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div class="wrap">
+    <p class="crumbs"><a href="{% url 'home' %}">Home</a> / <a href="{% url 'home' %}#exams">{{ exam.category.name }}</a> / {{ exam.short_name }}</p>
+    <h1>{{ exam.short_name }} mock tests</h1>
+    <p class="sub">{{ exam.name }}{% if exam.conducting_body %} · conducted by {{ exam.conducting_body }}{% endif %}. Every mock runs in the exam-day TCS iON interface with sectional timing.</p>
+  </div>
+</section>
+
+<div class="wrap two-col">
+  <div>
+    {% if mocks %}
+    <div class="mocks">
+      {% for m in mocks %}
+      <article class="mockrow{% if m.is_free %} is-free{% endif %}">
+        <span class="mockrow__n">{{ m.order }}</span>
+        <div>
+          <p class="mockrow__t">{{ m.title }}</p>
+          <p class="mockrow__m">{{ m.stage }} · {% for s in m.sections.all %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %} · {{ m.total_minutes }} min</p>
+        </div>
+        {% if m.is_free %}
+        <span class="tag tag--gold">Free</span>
+        <a class="btn btn--primary btn--sm" href="{% url 'instructions' m.slug %}">Attempt now</a>
+        {% else %}
+        <span class="tag">Pro</span>
+        <a class="btn btn--ghost btn--sm" href="#pricing">Unlock</a>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="sub">Mocks for {{ exam.short_name }} are being prepared. Check back soon.</p>
+    {% endif %}
+  </div>
+
+  {% if plan %}
+  <aside class="side-plan" id="pricing">
+    <p class="kicker">Pro pack</p>
+    <h3>{{ plan.name }}</h3>
+    <p class="plan__price"><span class="plan__amt">₹{{ plan.price_inr }}</span>{% if plan.mrp_inr %}<s>₹{{ plan.mrp_inr }}</s>{% endif %}</p>
+    <ul class="plan__list">{% for f in plan.feature_list %}<li>{{ f }}</li>{% endfor %}</ul>
+    <span class="btn btn--gold btn--block is-disabled">Unlock Pro · coming soon</span>
+  </aside>
+  {% endif %}
+</div>
+{% endblock %}

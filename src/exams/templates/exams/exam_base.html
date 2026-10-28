@@ -1,0 +1,24 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}{{ mock.title }}{% endblock %} — MeritMocks</title>
+  <link rel="icon" href="{% static 'core/img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'exams/css/exam.css' %}">
+</head>
+<body class="xm-body {% block body_class %}{% endblock %}">
+  <header class="xm-top">
+    <div class="xm-top__brand">
+      {% include "core/partials/mark.html" with inverse=True %}
+      <span class="xm-top__word"><b>Merit</b><i>Mocks</i></span>
+      <span class="xm-top__sep"></span>
+      <span class="xm-top__title">{{ mock.title }}</span>
+    </div>
+    {% block top_actions %}{% endblock %}
+  </header>
+  {% block content %}{% endblock %}
+  {% block scripts %}{% endblock %}
+</body>
+</html>

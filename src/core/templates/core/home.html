@@ -1,0 +1,215 @@
+{% extends "core/base.html" %}
+{% block body_class %}page-home{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="wrap hero__inner">
+    <div class="hero__copy">
+      <p class="eyebrow"><span class="dot"></span> IBPS PO 2026 · Prelims free mock is live</p>
+      <h1>Rehearse exam day,<br><span class="hl">not just the syllabus.</span></h1>
+      <p class="lede">MeritMocks puts you in front of the same screen you'll face at the TCS iON centre — sectional timers, question palette, mark-for-review and negative marking — so nothing on the real day is new except the questions.</p>
+      <div class="hero__cta">
+        {% if featured %}
+        <a class="btn btn--primary btn--lg" href="{% url 'instructions' featured.slug %}">Start free IBPS PO mock</a>
+        {% endif %}
+        <a class="btn btn--ghost btn--lg" href="#interface">See the interface</a>
+      </div>
+      <ul class="hero__facts">
+        <li><strong>100</strong> questions</li>
+        <li><strong>60</strong> minutes</li>
+        <li><strong>3</strong> timed sections</li>
+        <li><strong>−0.25</strong> negative marking</li>
+      </ul>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="shot">
+        <div class="shot__bar">
+          <span class="shot__title">IBPS PO Prelims · Mock</span>
+          <span class="shot__timer">Time Left <b>18:42</b></span>
+        </div>
+        <div class="shot__tabs"><span class="is-on">English Language</span><span>Quantitative Aptitude</span><span>Reasoning Ability</span></div>
+        <div class="shot__body">
+          <div class="shot__q">
+            <div class="shot__qhead">Question No. 12</div>
+            <div class="sk sk--w90"></div><div class="sk sk--w70"></div>
+            <ul class="shot__opts">
+              <li><i></i><span class="sk sk--w40"></span></li>
+              <li class="is-sel"><i></i><span class="sk sk--w55"></span></li>
+              <li><i></i><span class="sk sk--w35"></span></li>
+              <li><i></i><span class="sk sk--w50"></span></li>
+              <li><i></i><span class="sk sk--w30"></span></li>
+            </ul>
+            <div class="shot__btns"><span class="b b--o">Mark for Review &amp; Next</span><span class="b b--o">Clear</span><span class="b b--p">Save &amp; Next</span></div>
+          </div>
+          <div class="shot__pal">
+            {% for s in "aaaaaannmaavbaaavvvvvvvvvvvvvv" %}<span class="p p--{{ s }}">{{ forloop.counter }}</span>{% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="hero__badge">
+        {% include "core/partials/mark.html" %}
+        <div><b>Server-locked timer</b><span>Pausing the browser never pauses the clock.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="strip">
+  <div class="wrap strip__inner">
+    <span>Exact TCS iON layout</span><span>Sectional timing</span><span>Negative marking</span><span>Section-wise analysis</span><span>Detailed solutions</span>
+  </div>
+</section>
+
+<section class="block" id="exams">
+  <div class="wrap">
+    <div class="block__head">
+      <p class="kicker">Exams</p>
+      <h2>Mock tests for every banking exam, and beyond.</h2>
+      <p class="sub">We're starting with IBPS PO. Insurance, regulatory and government exams follow in the same exam-day interface.</p>
+    </div>
+    <div class="cats">
+      {% for cat in categories %}
+      <article class="cat">
+        <header class="cat__head">
+          <h3>{{ cat.name }}</h3>
+          <p>{{ cat.tagline }}</p>
+        </header>
+        <ul class="cat__list">
+          {% for exam in cat.exams.all %}
+          <li>
+            {% if exam.is_live %}
+            <a href="{% url 'exam_detail' exam.slug %}"><span>{{ exam.short_name }}</span><span class="tag tag--live">Live</span></a>
+            {% else %}
+            <span class="is-soon"><span>{{ exam.short_name }}</span><span class="tag">Soon</span></span>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if featured %}
+<section class="block block--cream" id="free-mock">
+  <div class="wrap feature">
+    <div class="feature__card">
+      <div class="feature__top">
+        <span class="tag tag--gold">Free</span>
+        <span class="feature__exam">{{ featured.exam.name }}</span>
+      </div>
+      <h2>{{ featured.title }}</h2>
+      <p class="sub">A full-length paper on the latest IBPS PO Prelims pattern, with original questions set at exam difficulty.</p>
+      <table class="pattern">
+        <thead><tr><th>Section</th><th>Questions</th><th>Time</th></tr></thead>
+        <tbody>
+          {% for s in featured.sections.all %}
+          <tr><td>{{ s.name }}</td><td>{{ s.questions.count }}</td><td>{{ s.duration_minutes }} min</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot><tr><td>Total</td><td>{{ featured.total_questions }}</td><td>{{ featured.total_minutes }} min</td></tr></tfoot>
+      </table>
+      <a class="btn btn--primary btn--lg btn--block" href="{% url 'instructions' featured.slug %}">Start free mock</a>
+      <p class="fine">No sign-up needed for the free mock.</p>
+    </div>
+    <div class="feature__series">
+      <h3>The full IBPS PO Prelims series</h3>
+      <ol class="series">
+        <li class="series__item is-free">
+          <span class="series__n">1</span><span class="series__t">{{ featured.title }}</span>
+          <a class="series__go" href="{% url 'instructions' featured.slug %}">Attempt</a>
+        </li>
+        {% for m in pro_mocks %}
+        <li class="series__item">
+          <span class="series__n">{{ m.order }}</span><span class="series__t">{{ m.title }}</span>
+          <span class="series__lock"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg>Pro</span>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="block" id="interface">
+  <div class="wrap">
+    <div class="block__head">
+      <p class="kicker">Built like the real thing</p>
+      <h2>Everything you'll see at the centre. Nothing you won't.</h2>
+    </div>
+    <div class="features">
+      <article class="fcard">
+        <div class="fcard__icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18M8 21h8"/></svg></div>
+        <h3>The TCS iON screen</h3>
+        <p>Section tabs, question palette with the official status shapes, Mark for Review &amp; Next, Clear Response and Save &amp; Next — in the same places.</p>
+      </article>
+      <article class="fcard">
+        <div class="fcard__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div>
+        <h3>Sectional timing that can't be gamed</h3>
+        <p>Each section gets 20 minutes and locks when it ends. The clock lives on our server, so closing the laptop or pausing the browser changes nothing.</p>
+      </article>
+      <article class="fcard">
+        <div class="fcard__icon"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Exam-hall discipline</h3>
+        <p>Full-screen mode, tab-switch warnings and auto-submit — just like a proctored centre. Copying and printing are blocked during the test.</p>
+      </article>
+      <article class="fcard">
+        <div class="fcard__icon"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+        <h3>Analysis that tells you what to fix</h3>
+        <p>Score, accuracy and time per section, then every question with the right answer and a worked explanation.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="block block--navy" id="pricing">
+  <div class="wrap">
+    <div class="block__head block__head--inverse">
+      <p class="kicker">Pricing</p>
+      <h2>Start free. Go Pro when you're ready.</h2>
+    </div>
+    <div class="plans">
+      <article class="plan">
+        <h3>Free</h3>
+        <p class="plan__price"><span class="plan__amt">₹0</span></p>
+        <ul class="plan__list">
+          <li>1 full-length IBPS PO Prelims mock</li>
+          <li>Exact exam-day interface</li>
+          <li>Section-wise scorecard</li>
+          <li>Detailed solutions</li>
+        </ul>
+        {% if featured %}<a class="btn btn--ghost-inverse btn--block" href="{% url 'instructions' featured.slug %}">Start free mock</a>{% endif %}
+      </article>
+      {% if plan %}
+      <article class="plan plan--pro">
+        <span class="plan__ribbon">Best value</span>
+        <h3>{{ plan.name }}</h3>
+        <p class="plan__price">
+          <span class="plan__amt">₹{{ plan.price_inr }}</span>
+          {% if plan.mrp_inr %}<s>₹{{ plan.mrp_inr }}</s>{% endif %}
+        </p>
+        <ul class="plan__list">
+          {% for f in plan.feature_list %}<li>{{ f }}</li>{% endfor %}
+        </ul>
+        <span class="btn btn--gold btn--block is-disabled" title="Payments open with accounts">Unlock Pro · coming soon</span>
+      </article>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap faq">
+    <div class="block__head">
+      <p class="kicker">FAQ</p>
+      <h2>Questions, answered.</h2>
+    </div>
+    <details><summary>Is the interface really the same as the IBPS exam?</summary><p>The layout, status colours, buttons and section-timing rules follow the TCS iON interface used for IBPS exams. The questions are our own, written to the current pattern and difficulty.</p></details>
+    <details><summary>Can I move between sections?</summary><p>No — as in the real exam, each section is open only for its 20 minutes and then locks. You can submit the test once you reach the last section.</p></details>
+    <details><summary>What happens if I switch tabs or exit full screen?</summary><p>You get a warning, and the event is recorded. After five warnings the test is submitted automatically — practise the discipline you'll need on the day.</p></details>
+    <details><summary>Do I need an account?</summary><p>Not for the free mock. Accounts and the Pro pack are coming next.</p></details>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "core/base.html" %}
+{% load static exam_tags %}
+{% block title %}Scorecard · {{ mock.title }} — MeritMocks{% endblock %}
+{% block head %}<meta name="robots" content="noindex"><link rel="stylesheet" href="{% static 'exams/css/review.css' %}">{% endblock %}
+{% block body_class %}page-review{% endblock %}
+{% block content %}
+<section class="rv-head">
+  <div class="wrap">
+    <p class="crumbs crumbs--inverse"><a href="{% url 'home' %}">Home</a> / <a href="{% url 'exam_detail' mock.exam.slug %}">{{ mock.exam.short_name }}</a> / Scorecard</p>
+    <div class="rv-head__row">
+      <div>
+        <h1>{{ mock.title }}</h1>
+        <p class="rv-head__meta">{{ attempt.candidate_name }} · Attempt {{ attempt.short_id }} · {{ attempt.submitted_at|date:"j M Y, g:i A" }}</p>
+      </div>
+      <span class="rv-reason rv-reason--{{ attempt.submit_reason }}">{{ attempt.get_submit_reason_display }}</span>
+    </div>
+  </div>
+</section>
+
+<div class="wrap rv-body">
+  {% if attempt.submit_reason == 'violations' %}
+  <p class="rv-alert">This test was submitted automatically after {{ attempt.warnings }} warnings for leaving the test window or full-screen mode. In the real exam, stay on the test screen until you submit.</p>
+  {% endif %}
+
+  <section class="rv-score">
+    <div class="rv-ring">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="46" class="rv-ring__track"/>
+        {% if score_pct > 0 %}<circle cx="50" cy="50" r="46" class="rv-ring__fill" stroke-dasharray="{{ score_pct|ring }}" transform="rotate(-90 50 50)"/>{% endif %}
+      </svg>
+      <div class="rv-ring__label">
+        <span class="rv-ring__score">{{ attempt.score|marks }}</span>
+        <span class="rv-ring__max">out of {{ mock.max_marks|marks }}</span>
+      </div>
+    </div>
+    <dl class="rv-stats">
+      <div><dt>Attempted</dt><dd>{{ attempted }}<small>/{{ total }}</small></dd></div>
+      <div class="is-good"><dt>Correct</dt><dd>{{ attempt.correct }}</dd></div>
+      <div class="is-bad"><dt>Wrong</dt><dd>{{ attempt.wrong }}</dd></div>
+      <div><dt>Accuracy</dt><dd>{{ accuracy }}<small>%</small></dd></div>
+      <div><dt>Negative marks</dt><dd>−{{ negative|marks }}</dd></div>
+      <div><dt>Time used</dt><dd class="rv-stats__time">{{ seconds|duration }}</dd></div>
+    </dl>
+  </section>
+
+  <section class="rv-card">
+    <h2>Section-wise performance</h2>
+    <div class="rv-table-wrap">
+      <table class="rv-table">
+        <thead>
+          <tr><th>Section</th><th>Score</th><th class="rv-col-bar"></th><th>Attempted</th><th>Correct</th><th>Wrong</th><th>Skipped</th><th>Accuracy</th><th>Time</th></tr>
+        </thead>
+        <tbody>
+          {% for s in sections %}
+          <tr>
+            <td class="rv-sec">{{ s.name }}</td>
+            <td><b>{{ s.score|marks }}</b><span class="rv-dim"> / {{ s.total }}</span></td>
+            <td class="rv-col-bar"><svg class="rv-bar" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><rect width="100" height="8" rx="4" class="rv-bar__track"/><rect width="{{ s.score_pct|floatformat:1 }}" height="8" rx="4" class="rv-bar__fill"/></svg></td>
+            <td>{{ s.attempted }}</td>
+            <td class="is-good">{{ s.correct }}</td>
+            <td class="is-bad">{{ s.wrong }}</td>
+            <td>{{ s.skipped }}</td>
+            <td>{{ s.accuracy }}%</td>
+            <td>{{ s.seconds|duration }}<span class="rv-dim"> / {{ s.minutes }}m</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="rv-actions">
+    <a class="btn btn--primary btn--lg" href="{% url 'solutions' attempt.pk %}">Review solutions</a>
+    <a class="btn btn--ghost btn--lg" href="{% url 'exam_detail' mock.exam.slug %}">Back to {{ mock.exam.short_name }} mocks</a>
+  </div>
+
+  {% if plan %}
+  <section class="rv-upsell">
+    <div>
+      <p class="kicker">Keep the momentum</p>
+      <h2>{{ pro_count }} more full-length IBPS PO mocks in the {{ plan.name }}.</h2>
+      <p>Same interface, new papers, the same detailed analysis — for ₹{{ plan.price_inr }}.</p>
+    </div>
+    <span class="btn btn--gold btn--lg is-disabled">Unlock Pro · coming soon</span>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

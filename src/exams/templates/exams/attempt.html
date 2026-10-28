@@ -1,0 +1,149 @@
+{% extends "exams/exam_base.html" %}
+{% load static %}
+{% block body_class %}xm-body--exam is-booting{% endblock %}
+{% block top_actions %}
+<div class="xm-top__actions">
+  <button type="button" class="xm-link" data-open="ins-modal">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
+    Instructions
+  </button>
+</div>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+{{ config|json_script:"exam-config" }}
+
+<div class="xm" id="xm">
+  <div class="xm-bar">
+    <nav class="xm-sections" id="sections" aria-label="Sections"></nav>
+    <div class="xm-timer" id="timer-box" role="timer" aria-live="off">
+      <span class="xm-timer__label">Time Left</span>
+      <span class="xm-timer__value" id="timer">--:--</span>
+    </div>
+  </div>
+
+  <div class="xm-main">
+    <section class="xm-q" aria-live="polite">
+      <div class="xm-qhead">
+        <h1 class="xm-qno">Question No. <span id="qno">–</span></h1>
+        <div class="xm-qmeta">
+          <span class="xm-marks">Marks <b class="pos" id="mpos">+1</b> <b class="neg" id="mneg">−0.25</b></span>
+          <label class="xm-lang">View in
+            <select disabled><option>English</option></select>
+          </label>
+        </div>
+      </div>
+
+      <div class="xm-qbody" id="qbody">
+        <div class="xm-passage" id="passage" hidden>
+          <div class="xm-passage__dir" id="passage-dir"></div>
+          <div class="xm-passage__body" id="passage-body"></div>
+        </div>
+        <div class="xm-question">
+          <div class="xm-inline-dir" id="inline-dir" hidden></div>
+          <div class="xm-text" id="qtext"></div>
+          <div class="xm-options" id="options" role="radiogroup" aria-labelledby="qno"></div>
+        </div>
+        <div class="xm-loading" id="qloading"><span></span></div>
+      </div>
+
+      <div class="xm-actions">
+        <div class="xm-actions__left">
+          <button type="button" class="xbtn xbtn--outline" id="btn-mark">Mark for Review &amp; Next</button>
+          <button type="button" class="xbtn xbtn--outline" id="btn-clear">Clear Response</button>
+        </div>
+        <button type="button" class="xbtn xbtn--primary xbtn--save" id="btn-save">Save &amp; Next</button>
+      </div>
+    </section>
+
+    <aside class="xm-side" id="side">
+      <button type="button" class="xm-side__toggle" id="side-toggle" aria-label="Toggle question palette" aria-expanded="true"><span></span></button>
+      <div class="xm-cand">
+        <div class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+        <div>
+          <p class="xm-cand__name" id="cand-name"></p>
+          <p class="xm-cand__id">Attempt ID <span id="cand-id"></span></p>
+        </div>
+      </div>
+      <div class="xm-legend" id="legend">{% include "exams/partials/legend.html" %}</div>
+      <div class="xm-pal">
+        <p class="xm-pal__section" id="pal-section"></p>
+        <p class="xm-pal__title">Choose a Question</p>
+        <div class="xm-pal__grid" id="palette"></div>
+      </div>
+      <div class="xm-side__foot">
+        <button type="button" class="xbtn xbtn--submit" id="btn-submit">Submit</button>
+        <p class="xm-side__hint" id="submit-hint">Submit is available in the last section.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="xm-watermark" id="watermark" aria-hidden="true"></div>
+
+<!-- Overlays -->
+<div class="xm-gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+  <div class="xm-gate__card">
+    {% include "core/partials/mark.html" %}
+    <h2 id="gate-title">Continue in full screen</h2>
+    <p id="gate-text">This test runs in full-screen mode, just like the exam centre. Your timer is running.</p>
+    <button type="button" class="xbtn xbtn--primary xbtn--lg" id="gate-btn">Enter full screen</button>
+  </div>
+</div>
+
+<div class="xm-shield" id="shield" aria-hidden="true">
+  <div class="xm-shield__card">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z"/></svg>
+    <p><b>Questions hidden</b>Return to the test window to continue. Your timer is still running.</p>
+  </div>
+</div>
+
+<div class="xm-modal" id="warn-modal" role="alertdialog" aria-modal="true" aria-labelledby="warn-title" hidden>
+  <div class="xm-modal__card xm-modal__card--warn">
+    <h2 id="warn-title">Warning <span id="warn-count"></span></h2>
+    <p id="warn-text"></p>
+    <div class="xm-modal__actions"><button type="button" class="xbtn xbtn--primary" data-close>I understand</button></div>
+  </div>
+</div>
+
+<div class="xm-modal" id="submit-modal" role="dialog" aria-modal="true" aria-labelledby="submit-title" hidden>
+  <div class="xm-modal__card xm-modal__card--wide">
+    <h2 id="submit-title">Exam Summary</h2>
+    <div class="xm-summary-wrap">
+      <table class="xm-summary">
+        <thead><tr><th>Section Name</th><th>No. of Questions</th><th>Answered</th><th>Not Answered</th><th>Marked for Review</th><th>Answered &amp; Marked for Review</th><th>Not Visited</th></tr></thead>
+        <tbody id="summary-body"></tbody>
+      </table>
+    </div>
+    <p class="xm-modal__q">Are you sure you want to submit the test? You will not be able to change your answers after this.</p>
+    <div class="xm-modal__actions">
+      <button type="button" class="xbtn xbtn--outline" data-close>No, go back</button>
+      <button type="button" class="xbtn xbtn--primary" id="confirm-submit">Yes, submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="xm-modal" id="ins-modal" role="dialog" aria-modal="true" aria-labelledby="ins-title" hidden>
+  <div class="xm-modal__card xm-modal__card--wide xm-modal__card--scroll">
+    <div class="ins__content" id="ins-title">{% include "exams/partials/general_instructions.html" with sections=mock.sections.all %}</div>
+    <div class="xm-modal__actions"><button type="button" class="xbtn xbtn--primary" data-close>Close</button></div>
+  </div>
+</div>
+
+<div class="xm-lock" id="lock" hidden>
+  <div class="xm-gate__card">
+    {% include "core/partials/mark.html" %}
+    <h2 id="lock-title">Test closed in this window</h2>
+    <p id="lock-text">This test was opened in another window or tab. It can only be active in one place at a time.</p>
+    <a class="xbtn xbtn--primary xbtn--lg" href="" id="lock-btn">Continue here instead</a>
+  </div>
+</div>
+
+<div class="xm-toast" id="toast" role="status" aria-live="polite"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'exams/js/proctor.js' %}" defer></script>
+<script src="{% static 'exams/js/exam.js' %}" defer></script>
+{% endblock %}
